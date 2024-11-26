@@ -1,10 +1,48 @@
+#include "pvm.c"
 #include "dump_ast.c"
 #include "lex.c"
 #include "parser.c"
 #include "parser.h"
-#include "gen.c"
-#include "../gvm/gvm.h"
+#include "state.c"
 #include <stdio.h>
+
+int evaluate(Ast_T *a, Psc_State *P) {
+  switch (a->kind) {
+    case Expr:
+      int lhs = evaluate(((AstExpr *)a)->lhs, P);
+      int rhs = evaluate(((AstExpr *)a)->rhs, P);
+      int result;
+      char *op = ((AstExpr *)a)->op;
+
+      if (strcmp(op, "+") == 0) {
+        psc_push_int(P, lhs + rhs);
+        result = lhs + rhs;
+      } else if (strcmp(op, "-") == 0) {
+        psc_push_int(P, lhs - rhs);
+        result = lhs - rhs;
+      } else if (strcmp(op, "*") == 0) {
+        psc_push_int(P, lhs * rhs);
+        result = lhs * rhs;
+      } else if (strcmp(op, "/") == 0) {
+        psc_push_int(P, lhs / rhs);
+        result = lhs / rhs;
+      }
+      return result;
+    case AstInt:
+      return ((AstNumber *)a)->value;
+    default:
+      printf("Case not supporetd. only handled cases are astint and expression.\n");
+      exit(1);
+  }
+
+  return 0;
+}
+
+void evaluate_list(AstList a, Psc_State *P) {
+  for (int i = 0; i < a.size; i++) {
+    evaluate(a.data[i], P);
+  }
+}
 
 char *openfile(char *filename) {
   FILE *f = fopen(filename, "r");
@@ -34,6 +72,7 @@ char *openfile(char *filename) {
 }
 
 int main(int argc, char **argv) {
+  Psc_State *P = init_psc_state();
   if (argc < 1) {
     printf("Usage: ./psc <input file>\n");
     exit(1);
@@ -45,11 +84,7 @@ int main(int argc, char **argv) {
   Parser p = init_parser(l.tokens);
   AstList ast = make_ast(&p);
 
-  evaluate_list(ast);
-  append_to_program(insthalt);
-  write_file(vm.program, psize);
-
-  dump_ast(ast);
+  evaluate_list(ast, P);
 
   freelist(l);
   free_ast_list(ast);

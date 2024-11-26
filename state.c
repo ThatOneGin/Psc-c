@@ -1,24 +1,28 @@
 #include "state.h"
 #include <stdio.h>
 
-int set_variable(Psc_State *P, char *name, int type, Psc_generic value) {
-  if (P->size > P->capacity) {
+/*
+[=Variable management functions=]
+*/
+
+int set_variable(Psc_State *P, char *name, int type, Psc_value value) {
+  if (P->G_ENV.size > P->G_ENV.capacity) {
     return -1;
   }
 
-  P->variables[P->size] = (psc_variable) {
+  P->G_ENV.variables[P->G_ENV.size] = (psc_variable) {
     .name = name,
     .type = type,
     .value = value
   };
-  P->size += 1;
+  P->G_ENV.size += 1;
 
   return 0;
 }
 psc_variable get_variable(Psc_State *P, char *name) {
-  for (size_t i = 0; i < P->size; i++) {
-    if (P->variables[i].name == name) {
-      return P->variables[i];
+  for (size_t i = 0; i < P->G_ENV.size; i++) {
+    if (P->G_ENV.variables[i].name == name) {
+      return P->G_ENV.variables[i];
     }
   }
 
@@ -26,13 +30,23 @@ psc_variable get_variable(Psc_State *P, char *name) {
   exit(1);
 }
 
-int reset_variable(Psc_State *P, char *name, Psc_generic value) {
-  for (size_t i = 0; i < P->size; i++) {
-    if (P->variables[i].name == name) {
-      P->variables[i].value = value;
+int reset_variable(Psc_State *P, char *name, Psc_value value) {
+  for (size_t i = 0; i < P->G_ENV.size; i++) {
+    if (P->G_ENV.variables[i].name == name) {
+      P->G_ENV.variables[i].value = value;
       return 0;
     }
   }
 
   return -1;
+}
+
+Psc_State *init_psc_state() {
+  Psc_State *p = {0};
+  return p;
+}
+
+void close_psc_state(Psc_State *P) {
+  free(P);
+  P = NULL;
 }
