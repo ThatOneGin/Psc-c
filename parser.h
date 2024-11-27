@@ -1,6 +1,8 @@
 #ifndef Psc_parser_header
 #define Psc_parser_header
 #include "lex.h"
+#include "mem.h"
+
 typedef struct {
   enum {
     Expr, // 0
@@ -40,8 +42,8 @@ typedef struct {
 
 Token parser_eat(Parser *p);
 Token parser_at(Parser *p);
-Ast_T *parse_primary_expr(Parser *p);
-Ast_T *parse_multiplicitave_expr(Parser *p);
-Ast_T *parse_additive_expr(Parser *p);
-Ast_T *parse_stmt(Parser *p); // todo
+Ast_T *parse_primary_expr(Parser *p, Psc_Memory_pool pool);
+Ast_T *parse_multiplicitave_expr(Parser *p, Psc_Memory_pool pool);
+Ast_T *parse_additive_expr(Parser *p, Psc_Memory_pool pool);
+Ast_T *parse_stmt(Parser *p, Psc_Memory_pool pool); // todo
 #endif

@@ -42,7 +42,9 @@ int reset_variable(Psc_State *P, char *name, Psc_value value) {
 }
 
 Psc_State *init_psc_state() {
-  Psc_State *p = {0};
+  Psc_State *p = malloc(sizeof(Psc_State));
+  p->stack.sz = 0;
+  p->stack.cap = 1024;
   return p;
 }
 

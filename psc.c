@@ -1,3 +1,4 @@
+#include "mem.h"
 #include "pvm.c"
 #include "dump_ast.c"
 #include "lex.c"
@@ -39,7 +40,7 @@ int evaluate(Ast_T *a, Psc_State *P) {
 }
 
 void evaluate_list(AstList a, Psc_State *P) {
-  for (int i = 0; i < a.size; i++) {
+  for (int i = 0; i < a.size+1; i++) {
     evaluate(a.data[i], P);
   }
 }
@@ -73,6 +74,7 @@ char *openfile(char *filename) {
 
 int main(int argc, char **argv) {
   Psc_State *P = init_psc_state();
+  Psc_Memory_pool pool = init_pool();
   if (argc < 1) {
     printf("Usage: ./psc <input file>\n");
     exit(1);
@@ -82,12 +84,14 @@ int main(int argc, char **argv) {
   Lexer l = init_lexer(fl);
   tokenize(&l);
   Parser p = init_parser(l.tokens);
-  AstList ast = make_ast(&p);
+  AstList ast = make_ast(&p, pool);
 
   evaluate_list(ast, P);
 
   freelist(l);
-  free_ast_list(ast);
+  //free_ast_list(ast);
   free(fl);
+  psc_free_pool(&pool);
+  close_psc_state(P);
   return 0;
 }
