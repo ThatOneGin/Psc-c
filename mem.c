@@ -3,7 +3,7 @@
 
 Psc_Memory_pool init_pool() {
   Psc_Memory_pool p;
-  p.mem = malloc(sizeof(void) * 3210);
+  p.mem = malloc(sizeof(void) * 1024);
   p.offset = 0;
   return p;
 }

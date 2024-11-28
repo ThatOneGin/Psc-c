@@ -1,5 +1,6 @@
 #ifndef Psc_state_header
 #define Psc_state_header
+#include "mem.h"
 #include <stdlib.h>
 
 typedef enum {
@@ -44,7 +45,7 @@ typedef struct {
   Psc_Stack stack;
 }Psc_State;
 
-Psc_State *init_psc_state();
+Psc_State init_psc_state();
 int set_variable(Psc_State *P, char *name, int type, Psc_value value);
 psc_variable get_variable(Psc_State *P, char *name);
 int reset_variable(Psc_State *P, char *name, Psc_value value);

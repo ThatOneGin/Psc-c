@@ -1,4 +1,5 @@
 #include "state.h"
+#include "mem.h"
 #include <stdio.h>
 
 /*
@@ -41,10 +42,11 @@ int reset_variable(Psc_State *P, char *name, Psc_value value) {
   return -1;
 }
 
-Psc_State *init_psc_state() {
-  Psc_State *p = malloc(sizeof(Psc_State));
-  p->stack.sz = 0;
-  p->stack.cap = 1024;
+Psc_State init_psc_state() {
+  Psc_State p = {0};
+  p.stack.sz = 0;
+  p.stack.cap = 1024;
+
   return p;
 }
 

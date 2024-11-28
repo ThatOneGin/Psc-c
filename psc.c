@@ -15,16 +15,16 @@ int evaluate(Ast_T *a, Psc_State *P) {
       int result;
       char *op = ((AstExpr *)a)->op;
 
-      if (strcmp(op, "+") == 0) {
+      if (op[0] == '+') {
         psc_push_int(P, lhs + rhs);
         result = lhs + rhs;
-      } else if (strcmp(op, "-") == 0) {
+      } else if (op[0] == '-') {
         psc_push_int(P, lhs - rhs);
         result = lhs - rhs;
-      } else if (strcmp(op, "*") == 0) {
+      } else if (op[0] == '*') {
         psc_push_int(P, lhs * rhs);
         result = lhs * rhs;
-      } else if (strcmp(op, "/") == 0) {
+      } else if (op[0] == '/') {
         psc_push_int(P, lhs / rhs);
         result = lhs / rhs;
       }
@@ -53,7 +53,7 @@ char *openfile(char *filename) {
   }
 
   fseek(f, 0, SEEK_END);
-  long f_size = ftell(f);
+  int f_size = ftell(f);
   fseek(f, 0, SEEK_SET);
 
 
@@ -73,25 +73,27 @@ char *openfile(char *filename) {
 }
 
 int main(int argc, char **argv) {
-  Psc_State *P = init_psc_state();
-  Psc_Memory_pool pool = init_pool();
   if (argc < 1) {
     printf("Usage: ./psc <input file>\n");
     exit(1);
   }
-  
+
+  Psc_Memory_pool pool = init_pool();
+  Psc_State P = init_psc_state();
+
   char *fl = openfile(argv[1]); // for now, only one file
+  
   Lexer l = init_lexer(fl);
   tokenize(&l);
+  
   Parser p = init_parser(l.tokens);
-  AstList ast = make_ast(&p, pool);
+  AstList ast = make_ast(&p);
 
-  evaluate_list(ast, P);
-
+  evaluate_list(ast, &P);
+  
   freelist(l);
-  //free_ast_list(ast);
+  free_ast_list(ast);
   free(fl);
   psc_free_pool(&pool);
-  close_psc_state(P);
   return 0;
 }

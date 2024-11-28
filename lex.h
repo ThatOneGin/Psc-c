@@ -10,7 +10,6 @@ typedef struct {
     PSC_EOF
   }type;
   char *value;
-  size_t vallen;
 }Token;
 
 typedef struct {
