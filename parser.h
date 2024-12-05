@@ -8,7 +8,8 @@ typedef struct {
     Expr, // 0
     Stmt, // 1
     AstIdent, // 2
-    AstInt // 3
+    AstInt, // 3
+    AstVar
   }kind;
 }Ast_T;
 
@@ -30,6 +31,11 @@ typedef struct {
 }AstExpr;
 
 typedef struct {
+  char *name;
+  Ast_T *value;
+}AstVariable;
+
+typedef struct {
   int size;
   Ast_T **data;
   int capacity;
@@ -46,4 +52,5 @@ Ast_T *parse_primary_expr(Parser *p);
 Ast_T *parse_multiplicitave_expr(Parser *p);
 Ast_T *parse_additive_expr(Parser *p);
 Ast_T *parse_stmt(Parser *p);
+Ast_T *parse_variable_declaration(Parser *p);
 #endif

@@ -1,5 +1,6 @@
 #ifndef Psc_lex_header
 #define Psc_lex_header
+#include "mem.h"
 #include <stdlib.h>
 
 typedef struct {
@@ -27,6 +28,6 @@ typedef struct {
 }Lexer;
 
 void advance(Lexer *l);
-Lexer init_lexer(char *src);
+Lexer init_lexer(char *src, Psc_Memory_pool *pool);
 void tokenize(Lexer *l);
 #endif

@@ -1,5 +1,4 @@
 #include "state.h"
-#include "mem.h"
 #include <stdio.h>
 
 /*

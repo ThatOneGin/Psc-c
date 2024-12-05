@@ -1,0 +1,4 @@
+(03/december/2024)
+optimized lists a bit, but still insecure.
+TODO:
+  Still deciding if use a virtual machine or an intepreter.

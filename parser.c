@@ -1,6 +1,7 @@
 #include "mem.c"
 #include "parser.h"
 #include "lex.h"
+#include "mem.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -17,6 +18,9 @@ void free_ast(Ast_T *ast) {
     free_ast(((AstExpr *)ast)->lhs);
     free_ast(((AstExpr *)ast)->rhs);
     free((AstExpr *)ast);
+  } else if (ast->kind == AstVar){
+    free_ast(((AstVariable *)ast)->value);
+    free((AstVariable *)ast);
   }
 }
 
@@ -46,6 +50,13 @@ AstExpr *create_astbinop(Ast_T *lhs, Ast_T *rhs, char *op) {
   return a;
 }
 
+AstVariable *create_astvar(char *name, Ast_T *value) {
+  AstVariable *a = (AstVariable *) malloc(sizeof(AstVariable));
+  a->name = name;
+  a->value = value;
+  return a;
+}
+
 Token parser_eat(Parser *p) {
   //assert(p->index <= p->tokens.size);
   assert(p->tokens.data[p->index].type != PSC_EOF);
@@ -54,6 +65,15 @@ Token parser_eat(Parser *p) {
   p->index += 1;
   return tk;
 };
+
+Token expect(Parser *p, char *val, char *err) {
+  Token t = parser_eat(p);
+  if (strcmp(val, t.value) != 0) {
+    printf("[ERROR]: %s\n", err);
+    exit(1);
+  }
+  return t;
+}
 
 Token parser_at(Parser *p) {
   return p->tokens.data[p->index];
@@ -80,7 +100,6 @@ Ast_T *parse_multiplicitave_expr(Parser *p) {
     char *operator = parser_eat(p).value;
     Ast_T *right = parse_primary_expr(p);
     
-    //return (Ast_T *) create_astbinop(left, right, operator);
     left = (Ast_T *) create_astbinop(left, right, operator);
     return left;
   }
@@ -106,9 +125,19 @@ Ast_T *parse_stmt(Parser *p) {
   return parse_additive_expr(p);
 }
 
-AstList init_astlist() {
+Ast_T *parse_variable_declaration(Parser *p) {
+  parser_eat(p);
+  char *name = parser_eat(p).value;
+  expect(p, "=", "Expected assignment in variable declaration.");
+  Ast_T *value = parse_stmt(p);
+
+
+  return (Ast_T *) create_astvar(name, value);
+}
+
+AstList init_astlist(Psc_Memory_pool *pool) {
   AstList a;
-  a.data = malloc(sizeof(Ast_T *) * initial_ast_cap);
+  a.data = psc_alloc(pool, sizeof(Ast_T *) * initial_ast_cap);
   a.size = 0;
   a.capacity = initial_ast_cap;
   return a;
@@ -137,11 +166,10 @@ void free_ast_list(AstList a) {
   for (int i = 0; i < a.size+1; i++) {
     free_ast(a.data[i]);
   }
-  free(a.data);
 }
 
-AstList make_ast(Parser *p) {
-  AstList x = init_astlist();
+AstList make_ast(Parser *p, Psc_Memory_pool *pool) {
+  AstList x = init_astlist(pool);
 
   while (p->tokens.data[p->index].type != PSC_EOF) {
     append_to_astlist(x, parse_stmt(p));

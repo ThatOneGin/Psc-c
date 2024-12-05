@@ -15,11 +15,7 @@ typedef char *Psc_str;
 
 typedef struct {
   value_kinds kind;
-  union {
-    Psc_int p_int;
-    Psc_number p_num;
-    Psc_str p_str;
-  }value;
+  void *value;
 }Psc_value;
 
 typedef struct {

@@ -4,15 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include "lex.h"
+#include "mem.h"
 
-Lexer init_lexer(char *src) {
+Lexer init_lexer(char *src, Psc_Memory_pool *pool) {
   Lexer l;
   l.src = src;
   l.srclen = strlen(l.src);
   l.index = 0;
   l.current = l.src[l.index];
   l.tokens = (TokenList) {0};
-  l.tokens.data = malloc(sizeof(Token) * 15);
+  l.tokens.data = psc_alloc(pool, sizeof(Token) * 15);
   l.tokens.size = 0;
   l.tokens.capacity = 15;
 
@@ -96,5 +97,5 @@ void freelist(Lexer l) {
   for (size_t i = 0; i < l.tokens.size-1; i++) {
     free(l.tokens.data[i].value);
   }
-  free(l.tokens.data);
+  //free(l.tokens.data);
 }
